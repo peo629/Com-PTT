@@ -1,12 +1,29 @@
-import { Redirect } from 'expo-router';
+import React from 'react';
+import { ActivityIndicator, View } from 'react-native';
+
+import { Colors } from '@constants';
 
 /**
- * Root entry point.
+ * Root entry point — transitional loading state.
  *
- * Immediately redirects to the auth gate. The auth gate will forward
- * authenticated users to (app) and unauthenticated users to (auth)/sign-in.
- * Replaced in Step 3 with a provider-aware redirect once the auth flow is built.
+ * AuthGate (in _layout.tsx) handles all routing decisions:
+ * - Authenticated → /(main)
+ * - Unauthenticated → /(auth)/sign-in
+ *
+ * This screen briefly renders during initial hydration before
+ * the auth gate redirects to the appropriate destination.
  */
 export default function Index(): React.JSX.Element {
-  return <Redirect href="/(auth)/sign-in" />;
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: Colors.bgPrimary,
+      }}
+    >
+      <ActivityIndicator size="large" color={Colors.accentBlue} />
+    </View>
+  );
 }

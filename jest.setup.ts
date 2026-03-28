@@ -1,65 +1,82 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 import '@testing-library/react-native/extend-expect';
 
-/** Mock expo-router */
+// ── expo-router mock ──
+const mockReplace = jest.fn();
+const mockPush = jest.fn();
+const mockBack = jest.fn();
+const mockNavigate = jest.fn();
+
 jest.mock('expo-router', () => {
-  const actual = jest.requireActual('expo-router');
+  const React = require('react');
+
+  /** Mock Stack component that renders children. */
+  function MockStack({
+    children,
+  }: {
+    children?: React.ReactNode;
+    screenOptions?: Record<string, unknown>;
+  }): React.ReactElement {
+    return React.createElement(React.Fragment, null, children);
+  }
+  MockStack.Screen = function MockScreen(_props: Record<string, unknown>) {
+    return null;
+  };
+
   return {
-    ...actual,
     router: {
-      replace: jest.fn(),
-      push: jest.fn(),
-      back: jest.fn(),
-      navigate: jest.fn(),
+      push: mockPush,
+      replace: mockReplace,
+      back: mockBack,
+      canGoBack: jest.fn(() => false),
+      navigate: mockNavigate,
     },
     useRouter: () => ({
-      replace: jest.fn(),
-      push: jest.fn(),
-      back: jest.fn(),
-      navigate: jest.fn(),
+      push: mockPush,
+      replace: mockReplace,
+      back: mockBack,
+      canGoBack: jest.fn(() => false),
+      navigate: mockNavigate,
     }),
-    useLocalSearchParams: jest.fn().mockReturnValue({}),
-    useSegments: jest.fn().mockReturnValue([]),
-    Redirect: ({ href }: { href: string }) => {
-      const { Text } = require('react-native');
-      return <Text testID="redirect">{`Redirect to ${href}`}</Text>;
+    useSegments: jest.fn(() => []),
+    useLocalSearchParams: jest.fn(() => ({})),
+    useGlobalSearchParams: jest.fn(() => ({})),
+    Link: 'Link',
+    Redirect: function MockRedirect() {
+      return null;
     },
-    Stack: Object.assign(
-      ({ children }: { children?: React.ReactNode }) => {
-        const { View } = require('react-native');
-        return <View testID="stack">{children}</View>;
-      },
-      {
-        Screen: ({ name }: { name: string }) => {
-          const { View } = require('react-native');
-          return <View testID={`stack-screen-${name}`} />;
-        },
-      },
-    ),
-    Slot: () => {
-      const { View } = require('react-native');
-      return <View testID="slot" />;
+    Stack: MockStack,
+    Slot: function MockSlot() {
+      return null;
     },
   };
 });
 
-/** Mock react-native-safe-area-context */
+// ── react-native-safe-area-context mock ──
 jest.mock('react-native-safe-area-context', () => {
-  const { View } = require('react-native');
+  const React = require('react');
   return {
-    SafeAreaProvider: ({ children }: { children: React.ReactNode }) => (
-      <View testID="safe-area-provider">{children}</View>
-    ),
-    SafeAreaView: ({ children, ...props }: { children: React.ReactNode }) => (
-      <View testID="safe-area-view" {...props}>
-        {children}
-      </View>
-    ),
+    SafeAreaView: function MockSafeAreaView({
+      children,
+      ...props
+    }: {
+      children?: React.ReactNode;
+      style?: Record<string, unknown>;
+      testID?: string;
+    }): React.ReactElement {
+      return React.createElement('View', props, children);
+    },
+    SafeAreaProvider: function MockSafeAreaProvider({
+      children,
+    }: {
+      children?: React.ReactNode;
+    }): React.ReactElement {
+      return React.createElement(React.Fragment, null, children);
+    },
     useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
   };
 });
 
-/** Mock expo-haptics */
+// ── expo-haptics mock ──
 jest.mock('expo-haptics', () => ({
   impactAsync: jest.fn(),
   notificationAsync: jest.fn(),
@@ -71,3 +88,32 @@ jest.mock('expo-haptics', () => ({
     Error: 'error',
   },
 }));
+
+// ── expo-secure-store mock (Map-backed for state persistence within tests) ──
+const mockSecureStoreData = new Map<string, string>();
+
+jest.mock('expo-secure-store', () => ({
+  setItemAsync: jest.fn((key: string, value: string) => {
+    mockSecureStoreData.set(key, value);
+    return Promise.resolve();
+  }),
+  getItemAsync: jest.fn((key: string) => {
+    return Promise.resolve(mockSecureStoreData.get(key) ?? null);
+  }),
+  deleteItemAsync: jest.fn((key: string) => {
+    mockSecureStoreData.delete(key);
+    return Promise.resolve();
+  }),
+}));
+
+// ── expo-status-bar mock ──
+jest.mock('expo-status-bar', () => ({
+  StatusBar: function MockStatusBar() {
+    return null;
+  },
+}));
+
+// Clear mock store between tests
+beforeEach(() => {
+  mockSecureStoreData.clear();
+});
