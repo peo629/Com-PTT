@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native build outputs
+android/
+ios/
+
+# Metro
+.metro-health-check*
+
+# Debug logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# Local env files — never commit secrets
+.env
+.env.local
+.env*.local
+
+# Certificates & signing files
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Google / Apple service files — injected via EAS Secrets
+google-services.json
+GoogleService-Info.plist
+
+# TypeScript build info
+*.tsbuildinfo
+
+# EAS local state
+.eas/
