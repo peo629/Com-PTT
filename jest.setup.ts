@@ -113,6 +113,140 @@ jest.mock('expo-status-bar', () => ({
   },
 }));
 
+// ── expo-location mock ──
+const mockWatchPositionAsync = jest.fn(() =>
+  Promise.resolve({ remove: jest.fn() }),
+);
+const mockWatchHeadingAsync = jest.fn(() =>
+  Promise.resolve({ remove: jest.fn() }),
+);
+
+jest.mock('expo-location', () => ({
+  requestForegroundPermissionsAsync: jest.fn(() =>
+    Promise.resolve({ status: 'granted' }),
+  ),
+  requestBackgroundPermissionsAsync: jest.fn(() =>
+    Promise.resolve({ status: 'granted' }),
+  ),
+  getForegroundPermissionsAsync: jest.fn(() =>
+    Promise.resolve({ status: 'undetermined' }),
+  ),
+  getBackgroundPermissionsAsync: jest.fn(() =>
+    Promise.resolve({ status: 'undetermined' }),
+  ),
+  watchPositionAsync: mockWatchPositionAsync,
+  watchHeadingAsync: mockWatchHeadingAsync,
+  hasStartedLocationUpdatesAsync: jest.fn(() => Promise.resolve(false)),
+  startLocationUpdatesAsync: jest.fn(() => Promise.resolve()),
+  stopLocationUpdatesAsync: jest.fn(() => Promise.resolve()),
+  Accuracy: {
+    Lowest: 1,
+    Low: 2,
+    Balanced: 3,
+    High: 4,
+    Highest: 5,
+    BestForNavigation: 6,
+  },
+  PermissionStatus: {
+    UNDETERMINED: 'undetermined',
+    GRANTED: 'granted',
+    DENIED: 'denied',
+  },
+}));
+
+// ── expo-task-manager mock ──
+jest.mock('expo-task-manager', () => ({
+  defineTask: jest.fn(),
+  isTaskDefined: jest.fn(() => true),
+}));
+
+// ── react-native-maps mock ──
+jest.mock('react-native-maps', () => {
+  const React = require('react');
+
+  function MockMapView({
+    children,
+    testID,
+    ...rest
+  }: {
+    children?: React.ReactNode;
+    testID?: string;
+    [key: string]: unknown;
+  }): React.ReactElement {
+    return React.createElement(
+      'View',
+      { testID, ...rest },
+      children,
+    );
+  }
+
+  function MockMarker({
+    children,
+    testID,
+    ...rest
+  }: {
+    children?: React.ReactNode;
+    testID?: string;
+    [key: string]: unknown;
+  }): React.ReactElement {
+    return React.createElement(
+      'View',
+      { testID, ...rest },
+      children,
+    );
+  }
+
+  function MockCallout({
+    children,
+    ...rest
+  }: {
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }): React.ReactElement {
+    return React.createElement('View', rest, children);
+  }
+
+  MockMapView.displayName = 'MapView';
+  MockMarker.displayName = 'Marker';
+  MockCallout.displayName = 'Callout';
+
+  return {
+    __esModule: true,
+    default: MockMapView,
+    Marker: MockMarker,
+    Callout: MockCallout,
+    PROVIDER_GOOGLE: 'google',
+  };
+});
+
+// ── react-native-svg mock ──
+jest.mock('react-native-svg', () => {
+  const React = require('react');
+
+  function MockSvg({
+    children,
+    testID,
+    ...rest
+  }: {
+    children?: React.ReactNode;
+    testID?: string;
+    [key: string]: unknown;
+  }): React.ReactElement {
+    return React.createElement('View', { testID, ...rest }, children);
+  }
+
+  function MockPath(props: Record<string, unknown>): React.ReactElement {
+    return React.createElement('View', props);
+  }
+
+  return {
+    __esModule: true,
+    default: MockSvg,
+    Svg: MockSvg,
+    Path: MockPath,
+  };
+});
+
 // Clear mock store between tests
 beforeEach(() => {
   mockSecureStoreData.clear();

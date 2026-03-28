@@ -51,7 +51,7 @@ export default function SignInScreen(): React.JSX.Element {
 
   const emailBorderColor =
     email.length > 0 && !isAllowedEmailDomain(email)
-      ? Colors.sosRed + '88'
+      ? Colors.accentRed + '88'
       : Colors.textSecondary + '33';
 
   return (
@@ -94,7 +94,7 @@ export default function SignInScreen(): React.JSX.Element {
           {error ? (
             <View
               style={{
-                backgroundColor: Colors.sosRed + '22',
+                backgroundColor: Colors.accentRed + '22',
                 borderRadius: 12,
                 padding: 12,
                 marginBottom: 16,
@@ -103,7 +103,7 @@ export default function SignInScreen(): React.JSX.Element {
             >
               <Text
                 style={{
-                  color: Colors.sosRed,
+                  color: Colors.accentRed,
                   fontSize: 14,
                   textAlign: 'center',
                 }}
@@ -143,7 +143,7 @@ export default function SignInScreen(): React.JSX.Element {
               {email.length > 0 && !isAllowedEmailDomain(email) ? (
                 <Text
                   style={{
-                    color: Colors.sosRed,
+                    color: Colors.accentRed,
                     fontSize: 12,
                     marginTop: 4,
                     marginLeft: 4,
